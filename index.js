@@ -7,7 +7,7 @@ import UserModel from "./models/User.js";
 
 import { registerValidation } from "./validations/auth.js";
 
-mongoose
+mongoose //подключение к mongoDB
     .connect(
         "mongodb+srv://admin:wwwwww@cluster0.am9ssuk.mongodb.net/privet?retryWrites=true&w=majority"
     )
