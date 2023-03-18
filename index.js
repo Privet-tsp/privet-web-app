@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 import UserModel from "./models/User.js";
-
 import { registerValidation } from "./validations/auth.js";
 
 mongoose
