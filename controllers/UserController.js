@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import UserModel from "../models/User.js";
-//import User from "./models/User.js";
+import ModeratorModel from "../models/moderator.js";
+
 export const register = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -98,6 +99,25 @@ export const getMe = async (req, res) => {
         console.log(err);
         res.status(403).json({
             message: "Нет доступа",
+        });
+    }
+};
+export const getAll = async (req, res) => {
+    try {
+        const moderator = await ModeratorModel.findById(req.userId);
+
+        if (!moderator) {
+            return res.status(400).json({
+                message: "Ошибка доступа",
+            });
+        }
+
+        const users = await UserModel.find();
+        res.json(users);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось получить список пользователей",
         });
     }
 };
