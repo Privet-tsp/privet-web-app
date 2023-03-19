@@ -1,5 +1,6 @@
 import UserModel from "../models/User.js";
 import SympathyModel from "../models/sympathy.js";
+import MatchModel from "../models/match.js";
 
 export const create = async (req, res) => {
     try {
@@ -19,6 +20,12 @@ export const create = async (req, res) => {
             });
         }
 
+        if (sender.equals(receiver)) {
+            return res.status(400).json({
+                message: "Нельзя отправить симпатию самому себе",
+            });
+        }
+
         const isUniqueSympathy = await SympathyModel.findOne({
             sender: req.userId,
             receiver: req.params.id,
@@ -27,6 +34,24 @@ export const create = async (req, res) => {
         if (isUniqueSympathy) {
             return res.status(400).json({
                 message: "Симпатия уже создана",
+            });
+        }
+
+        const isInverse = await SympathyModel.findOneAndDelete({
+            sender: req.params.id,
+            receiver: req.userId,
+        });
+
+        if (isInverse) {
+            const doc = new MatchModel({
+                user1: req.params.id,
+                user2: req.userId,
+            });
+
+            const match = await doc.save();
+
+            return res.status(200).json({
+                message: "Match",
             });
         }
 
@@ -39,6 +64,7 @@ export const create = async (req, res) => {
 
         res.json(sympathy);
     } catch (err) {
+        console.log(err);
         return res.status(400).json({
             message: "Непредвиденная ошибка",
         });

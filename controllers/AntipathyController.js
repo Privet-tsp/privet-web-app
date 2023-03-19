@@ -19,6 +19,12 @@ export const create = async (req, res) => {
             });
         }
 
+        if (sender.equals(receiver)) {
+            return res.status(400).json({
+                message: "Нельзя отправить антипатию самому себе",
+            });
+        }
+
         const isUniqueAntipathy = await AntipathyModel.findOne({
             sender: req.userId,
             receiver: req.params.id,
@@ -30,6 +36,15 @@ export const create = async (req, res) => {
             });
         }
 
+        const isInverse = await AntipathyModel.findOne({
+            sender: req.params.id,
+            receiver: req.userId,
+        });
+
+        if (isInverse) {
+            return res.status(200).json(isInverse);
+        }
+
         const doc = new AntipathyModel({
             sender: req.userId,
             receiver: req.params.id,
@@ -39,6 +54,7 @@ export const create = async (req, res) => {
 
         res.json(antipathy);
     } catch (err) {
+        console.log(err);
         return res.status(400).json({
             message: "Непредвиденная ошибка",
         });
