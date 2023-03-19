@@ -10,6 +10,8 @@ import checkAuth from "./utils/checkAuth.js";
 import * as UserController from "./controllers/UserController.js";
 import * as ModeratorController from "./controllers/ModeratorController.js";
 import * as AppealController from "./controllers/AppealController.js";
+import * as SympathyController from "./controllers/SympathyController.js";
+import * as AntipathyController from "./controllers/AntipathyController.js";
 
 mongoose
     .connect(
@@ -39,6 +41,9 @@ app.post("/appeal/new/:id", checkAuth, AppealController.create);
 app.get("/appeal", checkAuth, AppealController.getAll);
 app.patch("/appeal/result/:id", checkAuth, AppealController.updateStatus);
 app.get("/appeal/:id", checkAuth, AppealController.getAppeal);
+
+app.post("/profile/sympathy/:id", checkAuth, SympathyController.create);
+app.post("/profile/antipathy/:id", checkAuth, AntipathyController.create);
 
 app.listen(4444, (err) => {
     if (err) {
