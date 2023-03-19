@@ -25,15 +25,20 @@ app.post("/auth/login", loginValidation, UserController.login);
 app.post("/auth/register", registerValidation, UserController.register);
 app.get("/auth/me", checkAuth, UserController.getMe);
 
+app.get("/profile/:id", checkAuth, UserController.getProfile);
+app.get("/profile", checkAuth, UserController.getAll);
+
 app.patch(
     "/moderation/register",
     moderatorRegisterValidation,
     ModeratorController.register
 );
 app.post("/moderation/login", ModeratorController.login);
-app.get("/moderation/profiles", checkAuth, UserController.getAll);
 
-app.post("/appeal/:id", checkAuth, AppealController.create);
+app.post("/appeal/new/:id", checkAuth, AppealController.create);
+app.get("/appeal", checkAuth, AppealController.getAll);
+app.patch("/appeal/result/:id", checkAuth, AppealController.updateStatus);
+app.get("/appeal/:id", checkAuth, AppealController.getAppeal);
 
 app.listen(4444, (err) => {
     if (err) {

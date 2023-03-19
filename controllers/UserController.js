@@ -121,3 +121,32 @@ export const getAll = async (req, res) => {
         });
     }
 };
+
+export const getProfile = async (req, res) => {
+    try {
+        const moderator = await ModeratorModel.findById(req.userId);
+        const user = await UserModel.findById(req.userId);
+
+        if (!moderator && !user) {
+            return res.status(400).json({
+                message:
+                    "Просмотр анкет доступен только для авторизованных пользователей",
+            });
+        }
+
+        const profile = await UserModel.findById(req.params.id);
+
+        if (user) {
+            const { passwordHash, email, ...userData } = profile._doc;
+            res.json({ ...userData });
+        } else {
+            const { passwordHash, ...userData } = profile._doc;
+            res.json({ ...userData });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
+        });
+    }
+};
