@@ -164,8 +164,6 @@ export const getSet = async (req, res) => {
             });
         }
 
-        //СДЕЛАТЬ НОРМАЛЬНО В ДВА РАЗА МЕНЬШЕ ПОИСК!!!!!!!!!!!!!
-
         const anti = await AntipathyModel.find({
             $or: [{ sender: user._id }, { receiver: user._id }],
         }).distinct("sender");
@@ -175,11 +173,7 @@ export const getSet = async (req, res) => {
         }).distinct("receiver");
 
         const sympathy = await SympathyModel.find({
-            $or: [{ sender: user._id }, { receiver: user._id }],
-        }).distinct("sender");
-
-        const sympathy2 = await SympathyModel.find({
-            $or: [{ sender: user._id }, { receiver: user._id }],
+            sender: user._id,
         }).distinct("receiver");
 
         const match = await MatchModel.find({
@@ -190,14 +184,7 @@ export const getSet = async (req, res) => {
             $or: [{ user1: user._id }, { user2: user._id }],
         }).distinct("user2");
 
-        const result = [
-            ...anti,
-            ...anti2,
-            ...sympathy,
-            ...sympathy2,
-            ...match,
-            ...match2,
-        ];
+        const result = [...anti, ...anti2, ...sympathy, ...match, ...match2];
 
         const users = await UserModel.find({
             $and: [
