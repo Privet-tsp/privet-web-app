@@ -3,6 +3,9 @@ import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import UserModel from "../models/User.js";
 import ModeratorModel from "../models/moderator.js";
+import AntipathyModel from "../models/antipathy.js";
+import SympathyModel from "../models/sympathy.js";
+import MatchModel from "../models/match.js";
 
 export const register = async (req, res) => {
     try {
@@ -143,6 +146,77 @@ export const getProfile = async (req, res) => {
             const { passwordHash, ...userData } = profile._doc;
             res.json({ ...userData });
         }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
+        });
+    }
+};
+
+export const getSet = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Пользователь не найден",
+            });
+        }
+
+        //СДЕЛАТЬ НОРМАЛЬНО В ДВА РАЗА МЕНЬШЕ ПОИСК!!!!!!!!!!!!!
+
+        const anti = await AntipathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("sender");
+
+        const anti2 = await AntipathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("receiver");
+
+        const sympathy = await SympathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("sender");
+
+        const sympathy2 = await SympathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("receiver");
+
+        const match = await MatchModel.find({
+            $or: [{ user1: user._id }, { user2: user._id }],
+        }).distinct("user1");
+
+        const match2 = await MatchModel.find({
+            $or: [{ user1: user._id }, { user2: user._id }],
+        }).distinct("user2");
+
+        const result = [
+            ...anti,
+            ...anti2,
+            ...sympathy,
+            ...sympathy2,
+            ...match,
+            ...match2,
+        ];
+
+        const users = await UserModel.find({
+            $and: [
+                {
+                    _id: {
+                        $ne: req.userId,
+                    },
+                },
+                {
+                    _id: {
+                        $not: {
+                            $in: result,
+                        },
+                    },
+                },
+            ],
+        }).limit(10);
+
+        res.json(users);
     } catch (err) {
         console.log(err);
         res.status(500).json({
