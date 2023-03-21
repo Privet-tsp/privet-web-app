@@ -45,6 +45,8 @@ app.get("/appeal/:id", checkAuth, AppealController.getAppeal);
 app.post("/profile/sympathy/:id", checkAuth, SympathyController.create);
 app.post("/profile/antipathy/:id", checkAuth, AntipathyController.create);
 
+app.get("/set", checkAuth, UserController.getSet);
+
 app.listen(4444, (err) => {
     if (err) {
         return console.log(err);
