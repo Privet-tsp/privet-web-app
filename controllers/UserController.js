@@ -211,3 +211,52 @@ export const getSet = async (req, res) => {
         });
     }
 };
+
+export const profile = async (req, res) => {
+    try {
+        const user = await UserModel.findOneAndUpdate(
+            {
+                _id: req.userId,
+            },
+            {
+                userName: req.body.userName,
+                email: req.body.email,
+                passwordHash: req.body.passwordHash,
+                avatarUrl: req.body.avatarUrl,
+                userInfo: req.body.userInfo,
+                profileStatus: req.body.profileStatus,
+                lastActivity: req.body.lastActivity,
+                gender: req.body.gender,
+                findGender: req.body.findGender,
+                bday: req.body.bday,
+                location: req.body.location,
+                education: req.body.education,
+                profession: req.body.profession,
+                searchStatus: req.body.searchStatus,
+                famStatus: req.body.famStatus,
+                userHeight: req.body.userHeight,
+                smoking: req.body.smoking,
+                alcohol: req.body.alcohol,
+                political: req.body.political,
+                lifePath: req.body.lifePath,
+                hobby: req.body.hobby,
+                children: req.body.children,
+            }
+        );
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Ошибка доступа",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
+        });
+    }
+};

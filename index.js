@@ -30,6 +30,7 @@ app.get("/auth/me", checkAuth, UserController.getMe);
 
 app.get("/profile/:id", checkAuth, UserController.getProfile);
 app.get("/profile", checkAuth, UserController.getAll);
+app.put("/edit", checkAuth, UserController.profile);
 
 app.patch(
     "/moderation/register",
