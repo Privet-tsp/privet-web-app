@@ -51,7 +51,7 @@ export const getDialog = async (req, res) => {
 
         const messages = await MessageModel.find({
             matchId: req.params.id,
-        });
+        }).sort({ createdAt: -1 });
 
         if (!messages) {
             return res.status(404).json({

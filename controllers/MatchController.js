@@ -20,7 +20,7 @@ export const getAll = async (req, res) => {
                     user2: req.userId,
                 },
             ],
-        }).populate("user1 user2", "userName _id avatarUrl");
+        }).populate("user1 user2", "userName _id avatarUrl bday");
 
         if (!matches) {
             return res.status(404).json({
