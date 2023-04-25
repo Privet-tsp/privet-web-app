@@ -13,6 +13,7 @@ import * as AppealController from "./controllers/AppealController.js";
 import * as SympathyController from "./controllers/SympathyController.js";
 import * as AntipathyController from "./controllers/AntipathyController.js";
 import * as MessageController from "./controllers/MessageController.js";
+import * as MatchController from "./controllers/MatchController.js";
 
 mongoose
     .connect(
@@ -49,7 +50,7 @@ app.post("/profile/antipathy/:id", checkAuth, AntipathyController.create);
 
 app.get("/set", checkAuth, UserController.getSet);
 app.post("/message/new/:id", checkAuth, MessageController.create);
-
+app.get("/matches", checkAuth, MatchController.getAll);
 app.get("/message/view/:id", checkAuth, MessageController.getDialog);
 
 app.listen(4444, (err) => {
