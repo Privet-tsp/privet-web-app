@@ -47,7 +47,7 @@ export const getAll = async (req, res) => {
             });
         }
 
-        const appeals = await AppealModel.find();
+        const appeals = await AppealModel.find().populate("receiver");
         res.json(appeals);
     } catch (err) {
         return res.status(400).json({
