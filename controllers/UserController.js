@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import UserModel from "../models/User.js";
-//import User from "./models/User.js";
+import ModeratorModel from "../models/moderator.js";
+import AntipathyModel from "../models/antipathy.js";
+import SympathyModel from "../models/sympathy.js";
+import MatchModel from "../models/match.js";
+
 export const register = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -98,6 +102,161 @@ export const getMe = async (req, res) => {
         console.log(err);
         res.status(403).json({
             message: "Нет доступа",
+        });
+    }
+};
+export const getAll = async (req, res) => {
+    try {
+        const moderator = await ModeratorModel.findById(req.userId);
+
+        if (!moderator) {
+            return res.status(400).json({
+                message: "Ошибка доступа",
+            });
+        }
+
+        const users = await UserModel.find();
+        res.json(users);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось получить список пользователей",
+        });
+    }
+};
+
+export const getProfile = async (req, res) => {
+    try {
+        const moderator = await ModeratorModel.findById(req.userId);
+        const user = await UserModel.findById(req.userId);
+
+        if (!moderator && !user) {
+            return res.status(400).json({
+                message:
+                    "Просмотр анкет доступен только для авторизованных пользователей",
+            });
+        }
+
+        const profile = await UserModel.findById(req.params.id);
+
+        if (user) {
+            const { passwordHash, email, ...userData } = profile._doc;
+            res.json({ ...userData });
+        } else {
+            const { passwordHash, ...userData } = profile._doc;
+            res.json({ ...userData });
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
+        });
+    }
+};
+
+export const getSet = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Пользователь не найден",
+            });
+        }
+
+        const anti = await AntipathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("sender");
+
+        const anti2 = await AntipathyModel.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+        }).distinct("receiver");
+
+        const sympathy = await SympathyModel.find({
+            sender: user._id,
+        }).distinct("receiver");
+
+        const match = await MatchModel.find({
+            $or: [{ user1: user._id }, { user2: user._id }],
+        }).distinct("user1");
+
+        const match2 = await MatchModel.find({
+            $or: [{ user1: user._id }, { user2: user._id }],
+        }).distinct("user2");
+
+        const result = [...anti, ...anti2, ...sympathy, ...match, ...match2];
+
+        const users = await UserModel.find({
+            $and: [
+                {
+                    _id: {
+                        $ne: req.userId,
+                    },
+                },
+                {
+                    _id: {
+                        $not: {
+                            $in: result,
+                        },
+                    },
+                },
+            ],
+        }).limit(10);
+
+        res.json(users);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
+        });
+    }
+};
+
+export const profile = async (req, res) => {
+    try {
+        const user = await UserModel.findOneAndUpdate(
+            {
+                _id: req.userId,
+            },
+            {
+                userName: req.body.userName,
+                email: req.body.email,
+                passwordHash: req.body.passwordHash,
+                avatarUrl: req.body.avatarUrl,
+                userInfo: req.body.userInfo,
+                profileStatus: req.body.profileStatus,
+                lastActivity: req.body.lastActivity,
+                gender: req.body.gender,
+                findGender: req.body.findGender,
+                bday: req.body.bday,
+                location: req.body.location,
+                education: req.body.education,
+                profession: req.body.profession,
+                searchStatus: req.body.searchStatus,
+                famStatus: req.body.famStatus,
+                userHeight: req.body.userHeight,
+                smoking: req.body.smoking,
+                alcohol: req.body.alcohol,
+                political: req.body.political,
+                lifePath: req.body.lifePath,
+                hobby: req.body.hobby,
+                children: req.body.children,
+            }
+        );
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Ошибка доступа",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Не удалось найти пользователя",
         });
     }
 };
